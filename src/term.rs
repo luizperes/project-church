@@ -1,4 +1,6 @@
 
+use std::fmt;
+
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Term
 {
@@ -42,22 +44,22 @@ impl Term
 			}
 		}
 
-		let a = Term::var("a");
-		let b = Term::var("b");
+		let (a, b) = (Term::var("a"), Term::var("b"));
 		Term::lam("a", Term::lam("b", enc(n, &a, &b)))
 	}
 }
 
-impl ToString for Term
+impl fmt::Display for Term
 {
-	// Recursively output the term
-	fn to_string(&self) -> String
+	// Recursively display the terms
+	fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
 	{
+		use Term::*;
 		match *self
 		{
-			Term::App(ref tf, ref ta) => format!("({} {})", tf.to_string(), ta.to_string()),
-			Term::Lam(ref id, ref tm) => format!("(λ{}.{})", id, tm.to_string()),
-			Term::Var(ref id) => format!("{}", id)
+			App(ref tf, ref ta) => write!(f, "({} {})", tf, ta),
+			Lam(ref id, ref tm) => write!(f, "(λ{}.{})", id, tm),
+			Var(ref id) => write!(f, "{}", id)
 		}
 	}
 }
@@ -66,11 +68,11 @@ fn main()
 {
 	// Temporary tests
 	let t = Term::app(Term::lam("i", Term::var("i")), Term::var("i"));
-	println!("t = {}", t.to_string());
+	println!("t = {}", t);
 	let z = Term::nat(0);
 	let o = Term::nat(1);
 	let w = Term::nat(2);
-	println!("z = {}", z.to_string());
-	println!("o = {}", o.to_string());
-	println!("w = {}", w.to_string());
+	println!("z = {}", z);
+	println!("o = {}", o);
+	println!("w = {}", w);
 }

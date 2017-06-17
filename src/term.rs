@@ -1,6 +1,4 @@
 
-use std::fmt;
-
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub enum Term
 {
@@ -8,20 +6,8 @@ pub enum Term
     App(Box<Term>, Box<Term>),
     Lam(String, Box<Term>),
     Var(String),
-
-    /*
-    TODO:
-    Let(String, Box<Term>, Box<Term>),
-
-    // Church-encoded Numerals
-    Nat(u32),
-    Add(Box<Term>, Box<Term>),
-    Sub(Box<Term>, Box<Term>),
-    Mul(Box<Term>, Box<Term>),
-    Div(Box<Term>, Box<Term>),
-    Pow(Box<Term>, Box<Term>),
-    */
 }
+
 
 impl Term
 {
@@ -55,33 +41,49 @@ impl Term
             }
         }
 
-        let (a, b) = (Term::var("a"), Term::var("b"));
-        Term::lam("a", Term::lam("b", enc(n, &a, &b)))
+        let (x, y) = (Term::var("x"), Term::var("y"));
+        Term::lam("x", Term::lam("y", enc(n, &x, &y)))
     }
 }
 
-impl fmt::Display for Term
+
+macro_rules! app
+{
+    ($f:expr, $a:expr) => (Term::App(Box::new($f), Box::new($a)))
+}
+
+#[macro_export]
+macro_rules! lam
+{
+    ($i:expr, $a:expr) => (Term::Lam($i.into(), Box::new($a)))
+}
+
+#[macro_export]
+macro_rules! var
+{
+    ($i:expr) => (Term::Var($i.into()))
+}
+
+
+impl std::fmt::Display for Term
 {
     // Recursively display the terms
-    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result
     {
         match *self
         {
             Term::App(ref tf, ref ta) => write!(f, "({} {})", tf, ta),
-            Term::Lam(ref id, ref tm) => write!(f, "(λ{}.{})", id, tm),
+            Term::Lam(ref id, ref tm) => write!(f, "λ{}.{}", id, tm),
             Term::Var(ref id) => write!(f, "{}", id)
         }
     }
 }
 
+
 fn main()
 {
     // Temporary output test
-    println!("S = {}", Term::lam("x", Term::lam("y", Term::lam("z", Term::app(Term::app(Term::var("x"), Term::var("z")), Term::app(Term::var("y"), Term::var("z")))))));
-    println!("K = {}", Term::lam("x", Term::lam("y", Term::var("x"))));
-    println!("I = {}", Term::lam("x", Term::var("x")));
-    
-    println!("nat(0) = {}", Term::nat(0));
-    println!("nat(1) = {}", Term::nat(1));
-    println!("nat(2) = {}", Term::nat(2));
+    println!("S = {}", lam!("x", lam!("y", lam!("z", app!(app!(var!("x"), var!("z")), app!(var!("y"), var!("z")))))));
+    println!("K = {}", lam!("x", lam!("y", var!("x"))));
+    println!("I = {}", lam!("x", var!("x")));
 }

@@ -32,9 +32,9 @@ impl Term
 	}
 
 	// Converts an unsigned int into church-encoded natural
-	pub fn nat(num: i32) -> Term
+	pub fn nat(num: u32) -> Term
 	{
-		fn enc(n: i32, v1: Term, v2: Term) -> Term
+		fn enc(n: u32, v1: Term, v2: Term) -> Term
 		{
 			if n == 0 {v1} 
 			else {app(v2, enc(n - 1, v1, v2))}

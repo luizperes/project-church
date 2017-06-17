@@ -57,13 +57,14 @@ impl Term
 
 impl ToString for Term
 {
+	// Recursively output the term
 	pub fn to_string(&self) -> String
 	{
 		match self
 		{
-			Term::App(t1, t2) => format!("App({}, {})", t1.to_string(), t2.to_string()),
-			Term::Lam(id, tm) => format!("Lam({}, {})", id, tm.to_string()),
-			Term::Var(id) => format!("Var({})", id)
+			Term::App(tf, ta) => format!("({} {})", tf.to_string(), ta.to_string()),
+			Term::Lam(id, tm) => format!("λ{}.{}", id, tm.to_string()),
+			Term::Var(id) => id
 		}
 	}
 }

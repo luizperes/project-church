@@ -10,7 +10,6 @@ pub enum Term
     //TODO: Let, LC types
 }
 
-
 impl Term
 {
 	// Create a new application node
@@ -32,39 +31,39 @@ impl Term
 	}
 
 	// Converts an unsigned int into church-encoded natural
-	pub fn nat(num: uint) -> Term
+	pub fn nat(num: u32) -> Term
 	{
-		fn enc(n: uint, v1: Term, v2: Term) -> Term
+		fn enc(n: u32, v1: Box<Term>, v2: Box<Term>) -> Term
 		{
 			match n
 			{
-				0 => v1,
-				_ => app(v2, enc(n - 1, v1, v2))
+				0 => *v1,
+				_ => Term::app(*v2, enc(n - 1, v1, v2))
 			}
 		}
 
-		lam("a", lam("b", enc(n, var("a"), var("b"))))
-	}
-
-	pub fn eval(self) -> Term
-	{
-		match self
-		{
-			//TODO
-		}
+		let a: Term = Term::var("a");
+		let b: Term = Term::var("b");
+		Term::lam("a", Term::lam("b", enc(num, Box::new(a), Box::new(b))))
 	}
 }
 
 impl ToString for Term
 {
 	// Recursively output the term
-	pub fn to_string(&self) -> String
+	fn to_string(&self) -> String
 	{
-		match self
+		match *self
 		{
-			Term::App(tf, ta) => format!("({} {})", tf.to_string(), ta.to_string()),
-			Term::Lam(id, tm) => format!("λ{}.{}", id, tm.to_string()),
-			Term::Var(id) => id
+			Term::App(ref tf, ref ta) => format!("({} {})", tf.to_string(), ta.to_string()),
+			Term::Lam(ref id, ref tm) => format!("λ{}.{}", id, tm.to_string()),
+			Term::Var(ref id) => format!("{}", id)
 		}
 	}
+}
+
+fn main()
+{
+	let t = Term::app(Term::lam("i", Term::var("i")), Term::var("i"));
+	println!("t = {}", t.to_string());
 }

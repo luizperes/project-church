@@ -65,25 +65,23 @@ impl fmt::Display for Term
     // Recursively display the terms
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result
     {
-        use Term::*;
         match *self
         {
-            App(ref tf, ref ta) => write!(f, "({} {})", tf, ta),
-            Lam(ref id, ref tm) => write!(f, "(λ{}.{})", id, tm),
-            Var(ref id) => write!(f, "{}", id)
+            Term::App(ref tf, ref ta) => write!(f, "({} {})", tf, ta),
+            Term::Lam(ref id, ref tm) => write!(f, "(λ{}.{})", id, tm),
+            Term::Var(ref id) => write!(f, "{}", id)
         }
     }
 }
 
 fn main()
 {
-    // Temporary tests
-    let t = Term::app(Term::lam("i", Term::var("i")), Term::var("i"));
-    println!("t = {}", t);
-    let z = Term::nat(0);
-    let o = Term::nat(1);
-    let w = Term::nat(2);
-    println!("z = {}", z);
-    println!("o = {}", o);
-    println!("w = {}", w);
+    // Temporary output test
+    println!("S = {}", Term::lam("x", Term::lam("y", Term::lam("z", Term::app(Term::app(Term::var("x"), Term::var("z")), Term::app(Term::var("y"), Term::var("z")))))));
+    println!("K = {}", Term::lam("x", Term::lam("y", Term::var("x"))));
+    println!("I = {}", Term::lam("x", Term::var("x")));
+    
+    println!("nat(0) = {}", Term::nat(0));
+    println!("nat(1) = {}", Term::nat(1));
+    println!("nat(2) = {}", Term::nat(2));
 }

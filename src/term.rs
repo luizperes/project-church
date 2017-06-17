@@ -8,8 +8,19 @@ pub enum Term
     App(Box<Term>, Box<Term>),
     Lam(String, Box<Term>),
     Var(String),
-    
-    //TODO: Let, LC types
+
+    /*
+    TODO:
+    Let(String, Box<Term>, Box<Term>),
+
+    // Church-encoded Numerals
+    Nat(u32),
+    Add(Box<Term>, Box<Term>),
+    Sub(Box<Term>, Box<Term>),
+    Mul(Box<Term>, Box<Term>),
+    Div(Box<Term>, Box<Term>),
+    Pow(Box<Term>, Box<Term>),
+    */
 }
 
 impl Term

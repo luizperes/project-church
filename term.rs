@@ -43,7 +43,7 @@ impl Term
 			}
 		}
 
-		lam("i", lam("j", enc(n, var("i"), var("j"))))
+		lam("a", lam("b", enc(n, var("a"), var("b"))))
 	}
 
 	pub fn eval(self) -> Term
@@ -51,6 +51,19 @@ impl Term
 		match self
 		{
 			//TODO
+		}
+	}
+}
+
+impl ToString for Term
+{
+	pub fn to_string(&self) -> String
+	{
+		match self
+		{
+			Term::App(t1, t2) => format!("App({}, {})", t1.to_string(), t2.to_string()),
+			Term::Lam(id, tm) => format!("Lam({}, {})", id, tm.to_string()),
+			Term::Var(id) => format!("Var({})", id)
 		}
 	}
 }

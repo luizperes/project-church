@@ -9,27 +9,24 @@ pub enum Term
 }
 
 
+#[macro_export] // Create an application term
+macro_rules! app { ($f:expr, $a:expr) => (Term::App(Box::new($f), Box::new($a))) }
+
+#[macro_export] // Create a lambda term
+macro_rules! lam { ($i:expr, $a:expr) => (Term::Lam($i.into(), Box::new($a))) }
+
+#[macro_export] // Create a variable term
+macro_rules! var { ($i:expr) => (Term::Var($i.into())) }
+
+
 impl Term
 {
-    // Create a new application node
-    pub fn app(fun: Term, arg: Term) -> Term
-    {
-        Term::App(Box::new(fun), Box::new(arg))
-    }
+    // Safe function wrapper for the macros above
+    pub fn app(fun: Term, arg: Term) -> Term { app!(fun, arg) }
+    pub fn lam<S: Into<String>>(id: S, trm: Term) -> Term { lam!(id, trm) }
+    pub fn var<S: Into<String>>(id: S) -> Term { var!(id) }
 
-    // Create a new function (lambda) node
-    pub fn lam<S: Into<String>>(id: S, trm: Term) -> Term
-    {
-        Term::Lam(id.into(), Box::new(trm))
-    }
-
-    // Create a new variable node
-    pub fn var<S: Into<String>>(id: S) -> Term
-    {
-        Term::Var(id.into())
-    }
-
-    // Converts an unsigned int into church-encoded natural
+    // Create a church-encoded natural number from an unsigned integer
     pub fn nat(n: u32) -> Term
     {
         fn enc(n: u32, v1: &Term, v2: &Term) -> Term
@@ -37,31 +34,13 @@ impl Term
             match n
             {
                 0 => v1.clone(),
-                _ => Term::app(v2.clone(), enc(n - 1, v1, v2))
+                _ => app!(v2.clone(), enc(n - 1, v1, v2))
             }
         }
 
-        let (x, y) = (Term::var("x"), Term::var("y"));
-        Term::lam("x", Term::lam("y", enc(n, &x, &y)))
+        let (x, y) = (var!("x"), var!("y"));
+        lam!("x", lam!("y", enc(n, &x, &y)))
     }
-}
-
-
-macro_rules! app
-{
-    ($f:expr, $a:expr) => (Term::App(Box::new($f), Box::new($a)))
-}
-
-#[macro_export]
-macro_rules! lam
-{
-    ($i:expr, $a:expr) => (Term::Lam($i.into(), Box::new($a)))
-}
-
-#[macro_export]
-macro_rules! var
-{
-    ($i:expr) => (Term::Var($i.into()))
 }
 
 

@@ -10,21 +10,21 @@ pub enum Term
 
 
 #[macro_export] // Create an application term
-macro_rules! app { ($f:expr, $a:expr) => (Term::App(Box::new($f), Box::new($a))) }
+macro_rules! app {($f:expr,$a:expr) => (Term::App(Box::new($f),Box::new($a)))}
 
 #[macro_export] // Create a lambda term
-macro_rules! lam { ($i:expr, $a:expr) => (Term::Lam($i.into(), Box::new($a))) }
+macro_rules! lam {($i:expr,$a:expr) => (Term::Lam($i.into(),Box::new($a)))}
 
 #[macro_export] // Create a variable term
-macro_rules! var { ($i:expr) => (Term::Var($i.into())) }
+macro_rules! var {($i:expr) => (Term::Var($i.into()))}
 
 
 impl Term
 {
     // Safe function wrapper for the macros above
-    pub fn app(fun: Term, arg: Term) -> Term { app!(fun, arg) }
-    pub fn lam<S: Into<String>>(id: S, trm: Term) -> Term { lam!(id, trm) }
-    pub fn var<S: Into<String>>(id: S) -> Term { var!(id) }
+    pub fn app(lb: Term, ar: Term) -> Term {app!(lb, ar)}
+    pub fn lam<S: Into<String>>(id: S, tm: Term) -> Term {lam!(id, tm)}
+    pub fn var<S: Into<String>>(id: S) -> Term {var!(id)}
 
     // Create a church-encoded natural number from an unsigned integer
     pub fn nat(n: u32) -> Term
@@ -51,9 +51,9 @@ impl std::fmt::Display for Term
     {
         match *self
         {
-            Term::App(ref tf, ref ta) => write!(f, "({} {})", tf, ta),
-            Term::Lam(ref id, ref tm) => write!(f, "λ{}.{}", id, tm),
-            Term::Var(ref id) => write!(f, "{}", id)
+            Term::App(ref a, ref b) => write!(f, "({} {})", a, b),
+            Term::Lam(ref a, ref b) => write!(f, "λ{}.{}", a, b),
+            Term::Var(ref a) => write!(f, "{}", a)
         }
     }
 }
@@ -62,7 +62,7 @@ impl std::fmt::Display for Term
 fn main()
 {
     // Temporary output test
-    println!("S = {}", lam!("x", lam!("y", lam!("z", app!(app!(var!("x"), var!("z")), app!(var!("y"), var!("z")))))));
+    println!("S = {}", lam!("x",lam!("y", lam!("z", app!(app!(var!("x"), var!("z")), app!(var!("y"), var!("z")))))));
     println!("K = {}", lam!("x", lam!("y", var!("x"))));
     println!("I = {}", lam!("x", var!("x")));
 }

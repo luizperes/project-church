@@ -4,42 +4,33 @@ pub enum Term
 {
     // Basic Untyped Lambda Calculus
     App(Box<Term>, Box<Term>),
-    Lam(String, Box<Term>),
-    Var(String),
+    Lam(Box<Term>),
+    Var(u64),
 }
 
 
 #[macro_export] // Create an application term
-macro_rules! app {($f:expr,$a:expr) => (Term::App(Box::new($f),Box::new($a)))}
+macro_rules! app {($l:expr,$t:expr) => (Term::App(Box::new($l),Box::new($t)))}
 
 #[macro_export] // Create a lambda term
-macro_rules! lam {($i:expr,$a:expr) => (Term::Lam($i.into(),Box::new($a)))}
+macro_rules! lam {($t:expr) => (Term::Lam(Box::new($t)))}
 
 #[macro_export] // Create a variable term
-macro_rules! var {($i:expr) => (Term::Var($i.into()))}
+macro_rules! var {($i:expr) => (Term::Var($i))}
 
 
 impl Term
 {
-    // Safe function wrapper for the macros above
-    pub fn app(lb: Term, ar: Term) -> Term {app!(lb, ar)}
-    pub fn lam<S: Into<String>>(id: S, tm: Term) -> Term {lam!(id, tm)}
-    pub fn var<S: Into<String>>(id: S) -> Term {var!(id)}
+    // Safe function wrappers for the macros above
+    pub fn app(lb: Term, tm: Term) -> Term {app!(lb, tm)}
+    pub fn lam(tm: Term) -> Term {lam!(tm)}
+    pub fn var(id: u64) -> Term {var!(id)}
 
     // Create a church-encoded natural number from an unsigned integer
-    pub fn nat(n: u32) -> Term
+    pub fn nat(n: u64) -> Term
     {
-        fn enc(n: u32, v1: &Term, v2: &Term) -> Term
-        {
-            match n
-            {
-                0 => v1.clone(),
-                _ => app!(v2.clone(), enc(n - 1, v1, v2))
-            }
-        }
-
-        let (x, y) = (var!("x"), var!("y"));
-        lam!("x", lam!("y", enc(n, &x, &y)))
+        fn e(n: u64) -> Term {if n == 0 {var!(0)} else {app!(var!(1), e(n-1))}}
+        lam!(lam!(e(n)))
     }
 }
 
@@ -51,9 +42,9 @@ impl std::fmt::Display for Term
     {
         match *self
         {
-            Term::App(ref a, ref b) => write!(f, "({} {})", a, b),
-            Term::Lam(ref a, ref b) => write!(f, "λ{}.{}", a, b),
-            Term::Var(ref a) => write!(f, "{}", a)
+            Term::App(ref lb, ref tm) => write!(f, "({} {})", lb, tm),
+            Term::Lam(ref tm) => write!(f, "λ{}", tm),
+            Term::Var(id) => write!(f, "{}", id)
         }
     }
 }
@@ -62,7 +53,10 @@ impl std::fmt::Display for Term
 fn main()
 {
     // Temporary output test
-    println!("S = {}", lam!("x",lam!("y", lam!("z", app!(app!(var!("x"), var!("z")), app!(var!("y"), var!("z")))))));
-    println!("K = {}", lam!("x", lam!("y", var!("x"))));
-    println!("I = {}", lam!("x", var!("x")));
+    println!("S = {}", lam!(lam!(lam!(app!(app!(var!(2), var!(0)), app!(var!(1), var!(0)))))));
+    println!("K = {}", lam!(lam!(var!(1))));
+    println!("I = {}", lam!(var!(0)));
+    println!("nat(0) = {}", Term::nat(0));
+    println!("nat(1) = {}", Term::nat(1));
+    println!("nat(2) = {}", Term::nat(2));
 }
